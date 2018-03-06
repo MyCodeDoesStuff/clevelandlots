@@ -13,7 +13,7 @@ class Address(models.Model):
 
 def upload_name(instance, filename):
     now = int(time.time())
-    print instance.first_name, instance.last_name
+    print(instance.first_name, instance.last_name)
     return 'plans/%s-%s-%s_%s' % \
         (instance.first_name, instance.last_name, now, filename)
 
@@ -24,7 +24,7 @@ class Application(models.Model):
     # owned_ppn = models.CharField(max_length=14)
 
 
-    owned_address = models.ForeignKey(Address, related_name='owned_address')
+    owned_address = models.ForeignKey(Address, related_name='owned_address', on_delete=models.CASCADE)
     owned_live = models.CharField(max_length=40)
     owned_properties = models.CharField(max_length=40)
     owned_properties_info = models.CharField(max_length=255, null=True)
@@ -46,7 +46,7 @@ class Application(models.Model):
     other_descr = models.CharField(max_length=255, null=True)
     other_cost = models.CharField(max_length=255, null=True)
 
-    contact_address = models.ForeignKey(Address, related_name='contact_address')
+    contact_address = models.ForeignKey(Address, related_name='contact_address', on_delete=models.CASCADE)
     phone = models.CharField(max_length=15)
     phone_2 = models.CharField(max_length=15)
     email = models.CharField(max_length=255, null=True)
@@ -64,7 +64,7 @@ class Application(models.Model):
 
 class Lot(models.Model):
     ppn = models.CharField(max_length=14, primary_key=True)
-    address = models.ForeignKey(Address)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
     application = models.ManyToManyField(Application)
 
     # planned_use = models.CharField(max_length=20, default=None, null=True)

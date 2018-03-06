@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from lots_admin.models import Application, Lot
@@ -18,7 +18,7 @@ def lots_login(request):
                 login(request, user)
                 return HttpResponseRedirect(reverse('lots_admin.views.lots_admin'))
         else:
-            print form.errors
+            print(form.errors)
     else:
         form = AuthenticationForm()
     return render(request, 'lots_login.html', {'form': form})
@@ -106,13 +106,14 @@ def csv_dump(request):
        	    ## TODO: Replace this - Issue 18 - ASKoiman
             # image_url = 'http://cookviewer1.cookcountyil.gov/Jsviewer/image_viewer/requestImg.aspx?%s=' % pin.replace('-', '')
             # lots.extend([pin, addr, image_url])
-	    lots.extend([ppn, addr])
+            lots.extend([ppn, addr])
 # Issue 18--replace this - ASKoiman
 #        if len(lots) < 4:
  #           lots.extend(['', '', ''])
 	## TODO: Get lot_1_image working - Issue 18 - ASKoiman
         #lot_1_ppn, lot_1_addr, lot_1_image = lots
-	lot_1_ppn, lot_1_addr = lots
+        
+            lot_1_ppn, lot_1_addr = lots
         rows.append([
             application.id,
             application.received_date.strftime('%Y-%m-%d %H:%m %p'),

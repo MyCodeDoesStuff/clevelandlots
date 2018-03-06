@@ -1,6 +1,6 @@
 Django==1.6.5
 django-storages==1.1.8
-boto==2.29.1
+boto3==1.6.3
 requests==2.3.0
 gunicorn==19.0.0
 raven==5.0.0
