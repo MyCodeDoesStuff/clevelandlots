@@ -48,12 +48,12 @@ var LargeLots = {
           if(props.number){
               info += "<p>Address: " + LargeLots.formatAddress(props) + "</p>";
           }
-          info += "<p>PPN: " + props.parcelpo_1 + "<br />";
+          info += "<p>PPN: " + props.parcel + "<br />";
           // if (props.build){
           //     info += "Zoned: " + props.build + "<br />";
           // }
-          if (props.landreus_3){
-              info += "<p>Sq Ft: " + props.landreus_3 + "<br />";
+          if (props.propsize){
+              info += "<p>Sq Ft: " + props.propsize + "<br />";
           }
           this._div.innerHTML  = info;
         }
@@ -65,14 +65,14 @@ var LargeLots = {
 
       LargeLots.info.addTo(LargeLots.map);
 
-      var fields = "parcelpo_5,parcelpo_1,parcelpo_4,landreus_3,parcelpo_3,parcelpo_2" //"pin14,zoning_classification,ward,street_name,street_dir,street_number,street_type,city_owned,residential"
+      var fields = "ppn,parcel,address,propsize,street,number" //"pin14,zoning_classification,ward,street_name,street_dir,street_number,street_type,city_owned,residential"
       var layerOpts = {
           user_name: 'openclevelandgis',
           type: 'cartodb',
           cartodb_logo: false,
           sublayers: [
               {
-                  sql: "SELECT * FROM sideyard WHERE (parcelpo_3 != '') AND (parcelpo_2 != '')",
+                  sql: "SELECT * FROM sideyard WHERE (street != '') AND (number != '')",
                   cartocss: $('#egp-styles').html().trim(),
                   interactivity: fields
               }
@@ -98,11 +98,11 @@ var LargeLots = {
             });
             LargeLots.lotsLayer.on('featureClick', function(e, pos, latlng, data){
                 // console.log(data['parcel']);
-                LargeLots.getOneParcel(data['parcelpo_1']);
+                LargeLots.getOneParcel(data['parcel']);
             });
             window.setTimeout(function(){
-                if($.address.parameter('parcelpo_5')){
-                    LargeLots.getOneParcel($.address.parameter('parcelpo_1'))
+                if($.address.parameter('ppn')){
+                    LargeLots.getOneParcel($.address.parameter('parcel'))
                 }
             }, 1000)
         }).error(function(e) {
@@ -110,7 +110,7 @@ var LargeLots = {
         console.log(e)
       });
 
-      $("#search_address").val(LargeLots.convertToPlainString($.address.parameter('parcelpo_4')));
+      $("#search_address").val(LargeLots.convertToPlainString($.address.parameter('address')));
       LargeLots.addressSearch();
       $('.toggle-parcels').on('click', function(e){
           if($(e.target).is(':checked')){
@@ -147,7 +147,7 @@ var LargeLots = {
   },
 
   formatAddress: function (prop) {
-    return prop.parcelpo_2 + " " + " " + prop.parcelpo_3;
+    return prop.number + " " + " " + prop.street;
   },
 
   getOneParcel: function(ppn_current){
@@ -155,9 +155,9 @@ var LargeLots = {
         LargeLots.map.removeLayer(LargeLots.lastClickedLayer);
       }
       var sql = new cartodb.SQL({user: 'openclevelandgis', format: 'geojson'});
-	  //Issue #4: using apostrophes instead of casting to keep leading zeros. - ASKoiman 12/6/2014 -- \'{{num}}\' -- cwang
+    //Issue #4: using apostrophes instead of casting to keep leading zeros. - ASKoiman 12/6/2014 -- \'{{num}}\' -- cwang
       console.log(ppn_current);
-      sql.execute('SELECT * from sideyard WHERE parcelpo_1 = \'{{num}}\'', {num:ppn_current})
+      sql.execute('SELECT * from sideyard WHERE parcel = \'{{num}}\'', {num:ppn_current})
         .done(function(data){
             var shape = data.features[0];
             LargeLots.lastClickedLayer = L.geoJson(shape);
@@ -171,28 +171,28 @@ var LargeLots = {
 
   selectParcel: function (props){
       // console.log(props);
-      var parcelpo_4 = LargeLots.formatAddress(props);
+      var address = LargeLots.formatAddress(props);
 
       var info = "<div class='row'><div class='col-xs-6 col-md-12'>\
         <table class='table table-bordered table-condensed'><tbody>\
-          <tr><td>Address</td><td>" + parcelpo_4 + "</td></tr>\
-          <tr><td>Parcel Number</td><td>" + props.parcelpo_1 + " (<a target='_blank' href='http://treasurer.cuyahogacounty.us/payments/real_prop/ShowTaxBill.asp?txtParcel=" + props.parcelpo_5 + "'>info</a>)</td></tr>";
+          <tr><td>Address</td><td>" + address + "</td></tr>\
+          <tr><td>Parcel Number</td><td>" + props.parcel + " (<a target='_blank' href='http://treasurer.cuyahogacounty.us/payments/real_prop/ShowTaxBill.asp?txtParcel=" + props.ppn + "'>info</a>)</td></tr>";
       // if (props.build){
       //     info += "<tr><td>Zoned</td><td>" + props.build + "</td></tr>";
       // }
       if (props.sqft){
-          info += "<tr><td>Square feet</td><td>" + LargeLots.addCommas(props.landreus_3) + "</td></tr>";
+          info += "<tr><td>Square feet</td><td>" + LargeLots.addCommas(props.propsize) + "</td></tr>";
       }
-      info += "<tr><td colspan='2'><button type='button' id='lot_apply' data-parcelpo_1='" + props.parcelpo_1 + "' data-parcelpo_4='" + parcelpo_4 + "' href='#' class='btn btn-success'>Select this lot</button></td></tr>"
+      info += "<tr><td colspan='2'><button type='button' id='lot_apply' data-parcel='" + props.parcel + "' data-address='" + address + "' href='#' class='btn btn-success'>Select this lot</button></td></tr>"
       // info += "</tbody></table></div><div class='col-xs-6 col-md-12'>\
       // <img class='img-responsive img-thumbnail' src='http://cookviewer1.cookcountyil.gov/Jsviewer/image_viewer/requestImg.aspx?" + props.pin14 + "=' /></div></div>";
-      $.address.parameter('parcelpo_1', props.parcelpo_1)
+      $.address.parameter('parcel', props.parcel)
       $('#lot-info').html(info);
 
       $("#lot_apply").on("click", function(){
         // if ($("#id_lot_1_address").val() == "") {
-          $("#id_lot_1_address").val($(this).data('parcelpo_4'));
-          $("#id_lot_1_ppn").val($(this).data('parcelpo_1'));
+          $("#id_lot_1_address").val($(this).data('address'));
+          $("#id_lot_1_ppn").val($(this).data('parcel'));
         // }
 
         // else if ($("#id_lot_1_address").val() != $(this).data('address')){
@@ -238,7 +238,7 @@ var LargeLots = {
 
   returnAddress: function (response){
     if(!response.length){
-      $('#addr_search_modal').html(LargeLots.convertToPlainString($.address.parameter('parcelpo_4')));
+      $('#addr_search_modal').html(LargeLots.convertToPlainString($.address.parameter('address')));
       $('#modalGeocode').modal('show');
       return;
     }
